@@ -4,18 +4,14 @@
 # Imports ###########################################################
 
 import logging
-import json
-from urllib2 import urlopen, URLError
 from uuid import uuid4
 
 from lxml import etree
 from StringIO import StringIO
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
-from django.http import Http404
+from django.core.urlresolvers import reverse, NoReverseMatch
 
-from webob import Response
 from xblock.core import XBlock
 from xblock.fields import Scope, String, Integer, Boolean
 from xblock.fragment import Fragment
@@ -152,12 +148,12 @@ class OoyalaPlayerMixin(I18NService):
         """
         # Skin file path according to block type
         if hasattr(self, 'lightchild_block_type'):
-            json_config_url = resource_url(OoyalaPlayerLightChildBlock.lightchild_block_type, SKIN_FILE_PATH)
-            bit_movin_player_url = resource_url(OoyalaPlayerLightChildBlock.lightchild_block_type,
+            json_config_url = self.resource_url(OoyalaPlayerLightChildBlock.lightchild_block_type, SKIN_FILE_PATH)
+            bit_movin_player_url = self.resource_url(OoyalaPlayerLightChildBlock.lightchild_block_type,
                                                 BIT_MOVIN_PLAYER_PATH)
         else:
-            json_config_url = resource_url(self.scope_ids.block_type, SKIN_FILE_PATH)
-            bit_movin_player_url = resource_url(self.scope_ids.block_type, BIT_MOVIN_PLAYER_PATH)
+            json_config_url = self.resource_url(self.scope_ids.block_type, SKIN_FILE_PATH)
+            bit_movin_player_url = self.resource_url(self.scope_ids.block_type, BIT_MOVIN_PLAYER_PATH)
 
         dom_id = 'ooyala-' + self._get_unique_id()
 
@@ -394,6 +390,15 @@ class OoyalaPlayerBlock(OoyalaPlayerMixin, XBlock):
 
     xml_config = String(help=_("XML Configuration"), default='<ooyala>\n</ooyala>',
                         scope=Scope.content)
+
+    def resource_url(self, block_type, uri):
+        try:
+            return reverse('xblock_resource_url', kwargs={
+                'block_type': block_type,
+                'uri': uri,
+            })
+        except NoReverseMatch:
+            return self.local_resource_url(self, SKIN_FILE_PATH)
 
     def local_resource_url(self, block, uri):
         # TODO move to xblock-utils

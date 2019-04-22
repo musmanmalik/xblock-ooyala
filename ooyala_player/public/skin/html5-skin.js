@@ -9221,6 +9221,7 @@ OO.plugin("Html5Skin", function (OO, _, $, W) {
       // Binding custom events. Will be triggered from client code
       this.mb.subscribe('CcLanguageChanged', 'customerUi', _.bind(this.onClosedCaptionLanguageChange, this));
       this.mb.subscribe('CcHide', 'customerUi', _.bind(this.onHideCC, this));
+      this.mb.subscribe('fullScreenHide', 'customerUi', _.bind(this.onHideFullScreen, this));
     },
 
     subscribeBasicPlaybackEvents: function () {
@@ -10518,6 +10519,7 @@ OO.plugin("Html5Skin", function (OO, _, $, W) {
     },
 
     /*--------------------------------------------------------------------
+    /*--------------------------------------------------------------------
      skin UI-action -> publish event to core player
      ---------------------------------------------------------------------*/
     toggleDiscoveryScreen: function() {
@@ -10727,6 +10729,20 @@ OO.plugin("Html5Skin", function (OO, _, $, W) {
     },
     onClosedCaptionLanguageChange: function(name, value){
       this.onClosedCaptionChange('language', value);
+    },
+    onHideFullScreen: function (name, value) {
+      // Remove Full Screen button from Skin's buttons list
+      var buttons = this.skin.props.skinConfig.buttons.desktopContent;
+      var ffIndex = null;
+
+      for(var i=0; i < buttons.length; i++){
+          if(buttons[i].name == 'fullscreen'){
+              ffIndex = i;
+          }
+      }
+
+      if(ffIndex)
+          buttons.splice(ffIndex, 1);
     },
     onHideCC: function (name, value) {
       // Remove CC button from Skin's buttons list

@@ -7,6 +7,9 @@ function OoyalaPlayerBlock(runtime, element) {
             this.ccLang = this.data.ccLang;
             this.transcriptLang = null;
             this.disableCC = this.data.ccDisabled == 'True';
+            // ToDo: temporary hack to hide fullscreen button on Chrome
+            // remove once the issue resolves
+            this.hideFullScreen = isChrome();
             this.updateToken = null;
             this.complete = false;
 
@@ -103,6 +106,13 @@ function OoyalaPlayerBlock(runtime, element) {
                     // This event will be captured by the hide-CC functionality
                     // implemented in Skin code
                     this.player.mb.publish('CcHide');
+                }
+
+                // Hide full fcreen button
+                if(this.hideFullScreen){
+                    // This event will be captured by the hide-fullscreen functionality
+                    // implemented in Skin code
+                    this.player.mb.publish('fullScreenHide');
                 }
 
                 // transcript direction control
@@ -351,6 +361,10 @@ function OoyalaPlayerBlock(runtime, element) {
             return getVideoNode().playbackRate;
         }
         return null;
+    }
+
+    function isChrome() {
+        return (!!window.navigator.userAgent.match(/Chrome/) && !!window.navigator.vendor.match(/Google Inc/))
     }
 
     function download(filename, text) {
