@@ -275,6 +275,19 @@ class OoyalaPlayerMixin(I18NService):
         self.runtime.publish(self, "completion", {"completion": value})
         return {"result": "success"}
 
+    def resource_url(self, block_type, uri):
+        try:
+            return reverse('xblock_resource_url', kwargs={
+                'block_type': block_type,
+                'uri': uri,
+            })
+        except NoReverseMatch:
+            return self.local_resource_url(self, SKIN_FILE_PATH)
+
+    def local_resource_url(self, block, uri):
+        # TODO move to xblock-utils
+        return self.runtime.local_resource_url(block, uri)
+
 
 @XBlock.needs("i18n")
 @XBlock.wants("settings")
@@ -390,19 +403,6 @@ class OoyalaPlayerBlock(OoyalaPlayerMixin, XBlock):
 
     xml_config = String(help=_("XML Configuration"), default='<ooyala>\n</ooyala>',
                         scope=Scope.content)
-
-    def resource_url(self, block_type, uri):
-        try:
-            return reverse('xblock_resource_url', kwargs={
-                'block_type': block_type,
-                'uri': uri,
-            })
-        except NoReverseMatch:
-            return self.local_resource_url(self, SKIN_FILE_PATH)
-
-    def local_resource_url(self, block, uri):
-        # TODO move to xblock-utils
-        return self.runtime.local_resource_url(block, uri)
 
     def _get_unique_id(self):
         try:
